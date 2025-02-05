@@ -8,12 +8,14 @@
       package:
         name: apache2
         state: present
+      tags: deploy
 
     - name: Ensure Apache is running
       service:
         name: apache2
         state: started
         enabled: yes
+      tags: deploy
 
     - name: Create custom index.html
       copy:
@@ -22,6 +24,7 @@
         owner: www-data
         group: www-data
         mode: '0644'
+      tags: deploy
 
     - name: Open port 8080 in firewall
       ufw:
@@ -29,3 +32,34 @@
         port: '8080'
         proto: tcp
         state: enabled
+      tags: deploy
+
+- name: Undeploy Web Server
+  hosts: webservers
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Stop Apache service
+      service:
+        name: apache2
+        state: stopped
+      tags: undeploy
+
+    - name: Remove Apache package
+      package:
+        name: apache2
+        state: absent
+      tags: undeploy
+
+    - name: Remove custom index.html
+      file:
+        path: /var/www/html/index.html
+        state: absent
+      tags: undeploy
+
+    - name: Remove firewall rule for port 8080
+      ufw:
+        rule: deny
+        port: '8080'
+        proto: tcp
+      tags: undeploy
