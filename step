@@ -1,0 +1,27 @@
+#add ssh key into vm, so that control node can get access of vm without password
+ssh-copy-id -i ~/.ssh/id_ed25519.pub ubuntu@192.168.64.2
+
+#get access to vm, if doesn't need password, the key is added in vm
+ssh <username>@<ip address of vm>
+
+#run playbook on vms
+ansible-playbook -i hosts.ini deploy_webserver.yml --tags deploy
+
+#goto sudo file in vm
+sudo visudo
+#add this into the file, so that control node no need sudo password
+<your_user> ALL=(ALL) NOPASSWD: ALL
+
+# firefox not working run these
+sudo systemctl enable --now snapd.apparmor
+sudo snap disable firefox
+sudo snap enable firefox
+
+# check listening or not if not, add Listen <your_port> in the file
+sudo vim /etc/apache2/ports.conf
+#restart apache2 after edit Listening
+sudo systemctl restart apache2
+
+
+ssh ubuntu@192.168.64.2
+

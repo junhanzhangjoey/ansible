@@ -4,29 +4,29 @@
   become: yes
   become_method: sudo
   tasks:
-    - name: Install Apache
+    - name: Install Apache2
       package:
         name: apache2
         state: present
       tags: deploy
 
-    - name: Ensure Apache is running
+    - name: Make sure Apache is running
       service:
         name: apache2
         state: started
         enabled: yes
       tags: deploy
 
-    - name: Create custom index.html
+    - name: Create html file
       copy:
         content: "Hello World from SJSU-{{ inventory_hostname[-1] }}"
         dest: /var/www/html/index.html
         owner: www-data
         group: www-data
-        mode: '0644'
+        mode: '0700'
       tags: deploy
 
-    - name: Open port 8080 in firewall
+    - name: Open firewall for port 8080
       ufw:
         rule: allow
         port: '8080'
@@ -45,19 +45,19 @@
         state: stopped
       tags: undeploy
 
-    - name: Remove Apache package
+    - name: Remove Apache2 package
       package:
         name: apache2
         state: absent
       tags: undeploy
 
-    - name: Remove custom index.html
+    - name: Remove html file
       file:
         path: /var/www/html/index.html
         state: absent
       tags: undeploy
 
-    - name: Remove firewall rule for port 8080
+    - name: Remove firewall forport 8080
       ufw:
         rule: deny
         port: '8080'
